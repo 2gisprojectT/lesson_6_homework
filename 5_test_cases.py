@@ -1,18 +1,16 @@
 # coding: utf-8
 from unittest import TestCase
 from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from helpers.pages.LoginForm.form_page import LoginForm
 
 
-class SeleniumTest(TestCase):
+class DropboxLoginTest(TestCase):
     def setUp(self):
         self.driver = webdriver.Firefox()
         self.driver.get("https://www.dropbox.com/login")
+        self.form_page = LoginForm(self.driver)
 
     def tearDown(self):
-        self.assertIn(self.result, self.expect)
         self.driver.quit()
 
     def test_email_without_domain_name(self):
@@ -26,14 +24,13 @@ class SeleniumTest(TestCase):
                 - Нажать кнопку «Войти»
             4. Ожидаемый результат: Получаем ошибку «Неверное название домена (часть адреса эл. почты после символа @:
             ).»"""
-        element = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located((By.CLASS_NAME, "text-input-input")))
-        element.send_keys('max@')
-
-        self.driver.find_element_by_class_name('login-button').click()  # «Войти»
-        self.result = self.driver.find_element_by_class_name('error-message').text
-        self.expect = ['Неверное название домена (часть адреса эл. почты после символа @: ).',
-                       'The domain portion of the email address is invalid (the portion after the @: )']
+        form_page = self.form_page.form
+        form_page.input_email('max@')
+        form_page.submit_sing_in()  # «Войти»
+        result = form_page.get_error_text()
+        expect = ['Неверное название домена (часть адреса эл. почты после символа @: ).',
+                  'The domain portion of the email address is invalid (the portion after the @: )']
+        self.assertIn(result, expect)
 
     def test_empty_email_input(self):
         """Описание тест-кейса: https://projectt2015.testrail.net/index.php?/cases/view/249
@@ -43,13 +40,12 @@ class SeleniumTest(TestCase):
                 - Поставить галочку «Запомнить», если это необходимо
                 - Нажать кнопку «Войти»
             4. Ожидаемый результат: Получаем ошибку «Введите свой адрес электронной почты»"""
-        element = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located((By.CLASS_NAME, 'login-button')))
-        element.click()     # «Войти»
-
-        self.result = self.driver.find_element_by_class_name('error-message').text
-        self.expect = ['Введите свой адрес электронной почты.',
-                       'Please enter your email']
+        form_page = self.form_page.form
+        form_page.wait_and_click_sing_in_button()
+        result = form_page.get_error_text()
+        expect = ['Введите свой адрес электронной почты.',
+                  'Please enter your email']
+        self.assertIn(result, expect)
 
     def test_impossible_email(self):
         """Описание тест-кейса: https://projectt2015.testrail.net/index.php?/cases/view/251
@@ -61,14 +57,13 @@ class SeleniumTest(TestCase):
                 - Поставить галочку «Запомнить», если это необходимо
                 - Нажать кнопку «Войти»
             4. Ожидаемый результат: Получаем ошибку «Введен неверный адрес электронной почты.»"""
-        element = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located((By.CLASS_NAME, "text-input-input")))
-        element.send_keys('макс@mail.ru')
-
-        self.driver.find_element_by_class_name('login-button').click()  # «Войти»
-        self.result = self.driver.find_element_by_class_name('error-message').text
-        self.expect = ['Введен неверный адрес электронной почты.',
-                       'The e-mail you entered is invalid']
+        form_page = self.form_page.form
+        form_page.input_email('макс@mail.ru')
+        form_page.submit_sing_in()  # «Войти»
+        result = form_page.get_error_text()
+        expect = ['Введен неверный адрес электронной почты.',
+                  'The e-mail you entered is invalid']
+        self.assertIn(result, expect)
 
     def test_correct_email_and_empty_password(self):
         """Описание тест-кейса: https://projectt2015.testrail.net/index.php?/cases/view/272
@@ -79,14 +74,13 @@ class SeleniumTest(TestCase):
                 - Поставить галочку «Запомнить», если это необходимо
                 - Нажать кнопку «Войти»
             4. Ожидаемый результат: Получаем ошибку «Введите пароль»"""
-        element = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located((By.CLASS_NAME, "text-input-input")))
-        element.send_keys('max@mail.ru')
-
-        self.driver.find_element_by_class_name('login-button').click()  # «Войти»
-        self.result = self.driver.find_element_by_class_name('error-message').text
-        self.expect = ['Введите пароль.',
-                       'Please enter your password']
+        form_page = self.form_page.form
+        form_page.input_email('max@mail.ru')
+        form_page.submit_sing_in()  # «Войти»
+        result = form_page.get_error_text()
+        expect = ['Введите пароль.',
+                  'Please enter your password']
+        self.assertIn(result, expect)
 
     def test_entered_when_input_data_correct(self):
         """Описание тест-кейса: https://projectt2015.testrail.net/index.php?/cases/view/230
@@ -99,14 +93,12 @@ class SeleniumTest(TestCase):
                 - Поставить галочку «Запомнить», если это необходимо
                 - Нажать кнопку «Войти»
             4. Ожидаемый результат: Успешная авторизация пользователя, узнаем имя пользователя"""
-        element = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located((By.CLASS_NAME, 'text-input-input')))
-        element.send_keys('2gistestemail@mail.ru')
+        form_page = self.form_page.form
+        form_page.input_email('2gistestemail@mail.ru')
+        form_page.input_pass('2gistestenter')
+        form_page.submit_sing_in()  # «Войти»
 
-        self.driver.find_element_by_class_name('password-input').send_keys('2gistestenter')
-        self.driver.find_element_by_class_name('login-button').click()
-
-        WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located((By.CLASS_NAME, 'name')))
-        self.result = self.driver.find_element_by_css_selector('#header-account-menu > span > button > span.name').text
-        self.expect = ['Maxim Kolesnikov']
+        form_page.wait_page_elem('name')
+        result = self.driver.find_element_by_css_selector('#header-account-menu > span > button > span.name').text
+        expect = ['Maxim Kolesnikov']
+        self.assertIn(result, expect)
