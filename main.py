@@ -1,14 +1,16 @@
 from unittest import TestCase
 from selenium import webdriver
-import time
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 
 class TestForMailGoogle(TestCase):
 
     def setUp(self):
         self.driver = webdriver.Firefox()
-        self.driver.get("http://google.com/")
         self.driver.implicitly_wait(10)
+        self.driver.get("http://google.com/")
         self.login()
         self.driver.get("http://mail.google.com/")
 
@@ -39,22 +41,25 @@ class TestForMailGoogle(TestCase):
         for div in divs:
             if div.get_attribute("role") == "main":
                 table = div.find_element_by_xpath("div/div/div/table")
-                element = table.find_element_by_xpath("tbody/tr/td[6]/div/div/div/span")
-                break
-        return element.text
+                return table.find_element_by_xpath("tbody/tr/td[6]/div/div/div/span").text
 
     def get_subject_of_last_message_in_drafts(self):
         self.driver.get("https://mail.google.com/mail/#drafts")
-        self.wait()
+        self.wait_for_load("in:draft")
         return self.get_subject_of_last_message()
 
     def get_subject_of_last_message_in_sent(self):
         self.driver.get("https://mail.google.com/mail/#sent")
-        self.wait()
+        self.wait_for_load("in:sent")
         return self.get_subject_of_last_message()
 
-    def wait(self):
-        time.sleep(1)
+    def wait_for_load(self, text):
+        try:
+            WebDriverWait(self.driver, 10).until(
+                EC.text_to_be_present_in_element_value((By.ID, "gbqfq"), text)
+            )
+        finally:
+            return
 
     def test_subject_of_the_message_is_empty(self):
         """ Моделирование ситуации, когда тема сообщения не введена
