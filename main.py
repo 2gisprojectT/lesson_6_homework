@@ -1,8 +1,6 @@
 from unittest import TestCase
 from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
+import time
 
 
 class TestForMailGoogle(TestCase):
@@ -18,33 +16,25 @@ class TestForMailGoogle(TestCase):
         self.driver.quit()
 
     def login(self):
-        element = self.driver.find_element_by_css_selector("a.gb_Pd")
-        link = element.get_attribute("href")
+        link = self.driver.find_element_by_css_selector("a.gb_Pd").get_attribute("href")
         self.driver.get(link)
 
-        email = self.driver.find_element_by_id("Email")
-        email.send_keys("lesson5homework")
-        email_button = self.driver.find_element_by_id("next")
-        email_button.submit()
+        self.driver.find_element_by_id("Email").send_keys("lesson5homework")
+        self.driver.find_element_by_id("next").submit()
 
-        password = self.driver.find_element_by_id("Passwd")
-        password.send_keys("projectt")
-        password_button = self.driver.find_element_by_id("signIn")
-        password_button.submit()
+        self.driver.find_element_by_id("Passwd").send_keys("projectt")
+        self.driver.find_element_by_id("signIn").submit()
 
-    def openMailForm(self):
-        element = self.driver.find_element_by_css_selector("div.T-I.J-J5-Ji.T-I-KE.L3")
-        element.click()
+    def open_mail_form(self):
+        self.driver.find_element_by_css_selector("div.T-I.J-J5-Ji.T-I-KE.L3").click()
 
-    def saveInDrafts(self):
-        close = self.driver.find_element_by_css_selector("img.Ha")
-        close.click()
+    def save_in_drafts(self):
+        self.driver.find_element_by_css_selector("img.Ha").click()
 
-    def sendMail(self):
-        send = self.driver.find_element_by_css_selector("div.T-I.J-J5-Ji.aoO.T-I-atl.L3")
-        send.click()
+    def send_mail(self):
+        self.driver.find_element_by_css_selector("div.T-I.J-J5-Ji.aoO.T-I-atl.L3").click()
 
-    def getSubjectOfLastMessage(self):
+    def get_subject_of_last_message(self):
         divs = self.driver.find_elements_by_css_selector("div.BltHke.nH.oy8Mbf")
         for div in divs:
             if div.get_attribute("role") == "main":
@@ -53,25 +43,20 @@ class TestForMailGoogle(TestCase):
                 break
         return element.text
 
-    def getSubjectOfLastMessageInDrafts(self):
+    def get_subject_of_last_message_in_drafts(self):
         self.driver.get("https://mail.google.com/mail/#drafts")
         self.wait()
-        return self.getSubjectOfLastMessage()
+        return self.get_subject_of_last_message()
 
-    def getSubjectOfLastMessageInSent(self):
+    def get_subject_of_last_message_in_sent(self):
         self.driver.get("https://mail.google.com/mail/#sent")
         self.wait()
-        return self.getSubjectOfLastMessage()
+        return self.get_subject_of_last_message()
 
     def wait(self):
-        try:
-            WebDriverWait(self.driver, 2).until(
-                EC.title_contains("wait_for_1_second")
-            )
-        except TimeoutException:
-            return
+        time.sleep(1)
 
-    def testSubjectOfTheMessageIsEmpty(self):
+    def test_subject_of_the_message_is_empty(self):
         """ Моделирование ситуации, когда тема сообщения не введена
         Steps
             Нажать на пункт меню Написать
@@ -80,14 +65,12 @@ class TestForMailGoogle(TestCase):
             Сохранить в черновиках
         Expected Result
             Письмо будет сохранено в черновиках, в качестве темы сообщения будет указано (без темы)."""
-        self.openMailForm()
-        receiver = self.driver.find_element_by_css_selector("textarea.vO")
-        receiver.send_keys("lesson5homework@gmail.com")
-        self.saveInDrafts()
-        title = self.getSubjectOfLastMessageInDrafts()
-        self.assertEqual("(без темы)", title)
+        self.open_mail_form()
+        self.driver.find_element_by_css_selector("textarea.vO").send_keys("lesson5homework@gmail.com")
+        self.save_in_drafts()
+        self.assertEqual("(без темы)", self.get_subject_of_last_message_in_drafts())
 
-    def testSubjectOfTheMessageIsCorrect(self):
+    def test_subject_of_the_message_is_correct(self):
         """ Моделирование ситуации, когда тема введена
         Steps
             Нажать на пункт меню Написать
@@ -95,26 +78,24 @@ class TestForMailGoogle(TestCase):
             Сохранить в черновиках
         Expected Result
             Письмо будет сохранено в черновиках, в качестве темы сообщения "Тема сообщения"."""
-        self.openMailForm()
-        subject = self.driver.find_element_by_css_selector("input.aoT")
-        subject.send_keys("Тема сообщения")
-        self.saveInDrafts()
-        title = self.getSubjectOfLastMessageInDrafts()
-        self.assertEqual("Тема сообщения", title)
+        self.open_mail_form()
+        self.driver.find_element_by_css_selector("input.aoT").send_keys("Тема сообщения")
+        self.save_in_drafts()
+        self.assertEqual("Тема сообщения", self.get_subject_of_last_message_in_drafts())
 
-    def testReceiverOfTheMessageIsEmpty(self):
+    def test_receiver_of_the_message_is_empty(self):
         """ Моделирование ситуации, когда получатель отстутствует
         Steps
             Нажать на пункт меню Написать
             Отправить
         Expected Result
             Письмо будет не будет отправлено, пользователь получит оповещение о том, что имя пользователя не введено."""
-        self.openMailForm()
-        self.sendMail()
-        element = self.driver.find_element_by_css_selector("div.Kj-JD-Jz")
-        self.assertEqual("Укажите как минимум одного получателя.", element.text)
+        self.open_mail_form()
+        self.send_mail()
+        self.assertEqual("Укажите как минимум одного получателя.",
+                         self.driver.find_element_by_css_selector("div.Kj-JD-Jz").text)
 
-    def testReceiverOfTheMessageIsCorrect(self):
+    def test_receiver_of_the_message_is_correct(self):
         """ Моделирование ситуации, когда имя получателя введено корректно
         Steps
             Нажать на пункт меню Написать
@@ -122,16 +103,13 @@ class TestForMailGoogle(TestCase):
             Отправить
         Expected Result
             Письмо будет успешно отправлено по адресу lesson5homework@gmail.com."""
-        self.openMailForm()
-        receiver = self.driver.find_element_by_css_selector("textarea.vO")
-        receiver.send_keys("lesson5homework@gmail.com")
-        subject = self.driver.find_element_by_css_selector("input.aoT")
-        subject.send_keys("Письмо самому себе")
-        self.sendMail()
-        title = self.getSubjectOfLastMessageInSent()
-        self.assertEqual("Письмо самому себе", title)
+        self.open_mail_form()
+        self.driver.find_element_by_css_selector("textarea.vO").send_keys("lesson5homework@gmail.com")
+        self.driver.find_element_by_css_selector("input.aoT").send_keys("Письмо самому себе")
+        self.send_mail()
+        self.assertEqual("Письмо самому себе", self.get_subject_of_last_message_in_sent())
 
-    def testReceiverOfTheMessageIsNotCorrect(self):
+    def test_receiver_of_the_message_is_not_correct(self):
         """ Моделирование ситуации, когда имя получателя введено не корректно (отсутствует символ @)
         Steps
             Нажать на пункт меню Написать
@@ -139,11 +117,9 @@ class TestForMailGoogle(TestCase):
             Отправить
         Expected Result
             Письмо будет успешно отправлено по адресу lesson5homework@gmail.com."""
-        self.openMailForm()
-        receiver = self.driver.find_element_by_css_selector("textarea.vO")
-        receiver.send_keys("lesson5homework_gmail.com")
-        subject = self.driver.find_element_by_css_selector("input.aoT")
-        subject.send_keys("Тема сообщения")
-        self.sendMail()
-        element = self.driver.find_element_by_css_selector("div.Kj-JD-Jz")
-        self.assertEqual("Почтовый адрес \"\"lesson5homework_gmail.com\"\" не распознан. Исправьте его и повторите попытку.", element.text)
+        self.open_mail_form()
+        self.driver.find_element_by_css_selector("textarea.vO").send_keys("lesson5homework_gmail.com")
+        self.driver.find_element_by_css_selector("input.aoT").send_keys("Тема сообщения")
+        self.send_mail()
+        self.assertEqual("Почтовый адрес \"\"lesson5homework_gmail.com\"\" не распознан. Исправьте его и повторите попытку.",
+                         self.driver.find_element_by_css_selector("div.Kj-JD-Jz").text)
