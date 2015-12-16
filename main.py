@@ -67,8 +67,10 @@ class TestForMailGoogle(TestCase):
         Expected Result
             Письмо будет сохранено в черновиках, в качестве темы сообщения будет указано (без темы)."""
         self.open_mail_form()
+
         self.driver.find_element_by_css_selector("textarea.vO").send_keys("lesson5homework@gmail.com")
         self.save_in_drafts()
+        
         self.assertEqual("(без темы)", self.get_subject_of_last_message_in_drafts())
 
     def test_subject_of_the_message_is_correct(self):
@@ -80,8 +82,10 @@ class TestForMailGoogle(TestCase):
         Expected Result
             Письмо будет сохранено в черновиках, в качестве темы сообщения "Тема сообщения"."""
         self.open_mail_form()
+
         self.driver.find_element_by_css_selector("input.aoT").send_keys("Тема сообщения")
         self.save_in_drafts()
+
         self.assertEqual("Тема сообщения", self.get_subject_of_last_message_in_drafts())
 
     def test_receiver_of_the_message_is_empty(self):
@@ -92,7 +96,9 @@ class TestForMailGoogle(TestCase):
         Expected Result
             Письмо будет не будет отправлено, пользователь получит оповещение о том, что имя пользователя не введено."""
         self.open_mail_form()
+
         self.send_mail()
+
         self.assertEqual("Укажите как минимум одного получателя.",
                          self.driver.find_element_by_css_selector("div.Kj-JD-Jz").text)
 
@@ -105,9 +111,11 @@ class TestForMailGoogle(TestCase):
         Expected Result
             Письмо будет успешно отправлено по адресу lesson5homework@gmail.com."""
         self.open_mail_form()
+
         self.driver.find_element_by_css_selector("textarea.vO").send_keys("lesson5homework@gmail.com")
         self.driver.find_element_by_css_selector("input.aoT").send_keys("Письмо самому себе")
         self.send_mail()
+
         self.assertEqual("Письмо самому себе", self.get_subject_of_last_message_in_sent())
 
     def test_receiver_of_the_message_is_not_correct(self):
@@ -119,8 +127,10 @@ class TestForMailGoogle(TestCase):
         Expected Result
             Письмо будет успешно отправлено по адресу lesson5homework@gmail.com."""
         self.open_mail_form()
+
         self.driver.find_element_by_css_selector("textarea.vO").send_keys("lesson5homework_gmail.com")
         self.driver.find_element_by_css_selector("input.aoT").send_keys("Тема сообщения")
         self.send_mail()
+
         self.assertEqual("Почтовый адрес \"\"lesson5homework_gmail.com\"\" не распознан. Исправьте его и повторите попытку.",
                          self.driver.find_element_by_css_selector("div.Kj-JD-Jz").text)
