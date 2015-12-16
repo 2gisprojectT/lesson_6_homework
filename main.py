@@ -10,17 +10,13 @@ class TestForMailGoogle(TestCase):
     def setUp(self):
         self.driver = webdriver.Firefox()
         self.driver.implicitly_wait(10)
-        self.driver.get("http://google.com/")
-        self.login()
         self.driver.get("http://mail.google.com/")
+        self.login()
 
     def tearDown(self):
         self.driver.quit()
 
     def login(self):
-        link = self.driver.find_element_by_css_selector("a.gb_Pd").get_attribute("href")
-        self.driver.get(link)
-
         self.driver.find_element_by_id("Email").send_keys("lesson5homework")
         self.driver.find_element_by_id("next").submit()
 
