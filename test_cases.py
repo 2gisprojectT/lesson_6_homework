@@ -9,6 +9,10 @@ from selenium.webdriver.support import expected_conditions as EC
 
 class AutomaticTestCase(TestCase):
 
+    def wait_element(self, element_id):
+        element = WebDriverWait(self.driver, 15).until(EC.element_to_be_clickable((By.ID, element_id)))
+        return element
+
     def setUp(self):
         """
         Подготовка драйвера для тестирования основных действий
@@ -38,7 +42,7 @@ class AutomaticTestCase(TestCase):
     def tearDown(self):
         self.driver.close()
 
-    def InvalidPageNameSearch(self): # Поиск по некорректному названию
+    def test_invalid_page_name_search(self): # Поиск по некорректному названию
         """Предусловия
         Для тестирования необходима учетная запись на сайте feedly.com.
         1. Перейти на сайт feedly.com, войти в учетную запись, нажав кнопку "Get started", выбрав способ входа и введя корректный логин и пароль.
@@ -50,14 +54,14 @@ class AutomaticTestCase(TestCase):
         """
         SEARCH_DATA = 'sportbooooox.ru'    # данные для поиска (есть возможность поиска по названию, тэгу и ссылке)
 
-        search_field = WebDriverWait(self.driver, 15).until(EC.element_to_be_clickable((By.ID, 'herculeInput')))
+        search_field = self.wait_element('herculeInput')
         search_field.send_keys(SEARCH_DATA)
         search_field.send_keys(Keys.RETURN)
 
         error_page = self.driver.find_elements_by_class_name('simpleFollowButton')
         self.assertEqual(len(error_page),0)
 
-    def DeleteNews(self): #Удаление новостей в существующем раздее
+    def test_delete_news(self): #Удаление новостей в существующем раздее
         """Предусловия
         Для тестирования необходима учетная запись на сайте feedly.com и ранее добавленный раздел новостей.
         1. Перейти на сайт feedly.com, войти в учетную запись, нажав кнопку "Get started", выбрав способ входа и введя корректный логин и пароль.
@@ -69,7 +73,7 @@ class AutomaticTestCase(TestCase):
         Результат
         Разделов с новостями на один меньше
         """
-        design_button = WebDriverWait(self.driver, 15).until(EC.element_to_be_clickable((By.ID, 'design_tab_label')))
+        design_button = self.wait_element('design_tab_label')
         design_tab = self.driver.find_element_by_id('design_tab_sources')
         design_sections = design_tab.find_elements_by_class_name('feedIndexTitleHolder')
         old_number = len(design_sections)
@@ -79,14 +83,14 @@ class AutomaticTestCase(TestCase):
         self.driver.find_element_by_id('unsubscribeAction').click()
 
         self.driver.refresh()
-        design_button = WebDriverWait(self.driver, 15).until(EC.element_to_be_clickable((By.ID, 'design_tab_label')))
+        design_button = self.wait_element('design_tab_label')
         design_tab = self.driver.find_element_by_id('design_tab_sources')
         new_design_sections = design_tab.find_elements_by_class_name('feedIndexTitleHolder')
         new_number = len(new_design_sections)
 
         self.assertEqual((old_number - new_number),1)
 
-    def AddNewsInExistingSection(self): # Добавление новостей в существующий раздел
+    def test_add_news_in_existing_section(self): # Добавление новостей в существующий раздел
         """Предусловия
         Для тестирования необходима учетная запись на сайте feedly.com.
         1. Перейти на сайт feedly.com, войти в учетную запись, нажав кнопку "Get started", выбрав способ входа и введя корректный логин и пароль.
@@ -98,14 +102,14 @@ class AutomaticTestCase(TestCase):
         Результат
         В результате в окне контента в разделе "Спорт" появится новый раздел, то есть количество разделов увеличится на 1
         """
-        sport_tab = WebDriverWait(self.driver, 15).until(EC.element_to_be_clickable((By.ID, 'sport_tab_sources')))
+        sport_tab = self.wait_element('sport_tab_sources')
         sport_sections = sport_tab.find_elements_by_class_name('feedIndex')
         old_number = len(sport_sections)
 
         SEARCH_DATA = 'sport'
-        add_button = WebDriverWait(self.driver, 15).until(EC.element_to_be_clickable((By.CLASS_NAME, 'secondaryPanelButton')))
+        add_button = self.wait_element('secondaryPanelButton')
         add_button.click()
-        search_field = WebDriverWait(self.driver, 15).until(EC.element_to_be_clickable((By.ID, 'maxHerculeInput')))
+        search_field = self.wait_element('maxHerculeInput')
         search_field.send_keys(SEARCH_DATA)
         search_field.send_keys(Keys.RETURN)
 
@@ -114,13 +118,13 @@ class AutomaticTestCase(TestCase):
         self.driver.find_element_by_id('subscribe').click()
 
         self.driver.refresh()
-        sport_tab = WebDriverWait(self.driver, 15).until(EC.element_to_be_clickable((By.ID, 'sport_tab_sources')))
+        sport_tab = self.wait_element('sport_tab_sources')
         sport_sections = sport_tab.find_elements_by_class_name('feedIndex')
         new_number = len(sport_sections)
 
         self.assertEqual((new_number - old_number),1)
 
-    def SeeNewsOnPrimarySourceSite(self): # Просмотр новостей на сайте-первоисточнике
+    def test_watch_news_on_primary_source_site(self): # Просмотр новостей на сайте-первоисточнике
         """Предусловия
         Для тестирования необходима учетная запись на сайте feedly.com и ранее добавленный раздел новостей.
         1. Перейти на сайт feedly.com, войти в учетную запись, нажав кнопку "Get started", выбрав способ входа и введя корректный логин и пароль.
@@ -133,7 +137,7 @@ class AutomaticTestCase(TestCase):
         Результат
         В результате откроется новое окно с сайтом-первоисточником новости
         """
-        sport_tab = WebDriverWait(self.driver, 15).until(EC.element_to_be_clickable((By.ID, 'sport_tab_sources')))
+        sport_tab = self.wait_element('sport_tab_sources')
         sport_sections = sport_tab.find_elements_by_class_name('feedIndex')
 
         sport_sections[0].click()
@@ -155,7 +159,7 @@ class AutomaticTestCase(TestCase):
         site_name = self.driver.current_url
         self.assertEqual(site_name,'http://www.sovsport.ru/')
 
-    def FullArticlePicture(self): # Проверка полного описания новостного контента
+    def test_full_article_picture(self): # Проверка полного описания новостного контента
         """Предусловия
         Для тестирования необходима учетная запись на сайте feedly.com и ранее добавленный раздел новостей.
         1. Перейти на сайт feedly.com, войти в учетную запись, нажав кнопку "Get started", выбрав способ входа и введя корректный логин и пароль.
@@ -168,7 +172,7 @@ class AutomaticTestCase(TestCase):
         Новости располагаются столбцом, при этом каждая новость обрамлена, отображается видео, если оно приложено, есть краткое описание и возможность поделиться в соц. сетях
         Комментарий: в качестве проверки правильности используется поиск кнопки "Visit Website", которая присутствует только в данном представлении
         """
-        all_button = WebDriverWait(self.driver, 15).until(EC.element_to_be_clickable((By.ID, 'feedlyTabs')))
+        all_button = self.wait_element('feedlyTab')
         all_button.find_element_by_id('latesttab_label').click()
         self.driver.find_element_by_id('pageActionCustomize').click()
         self.driver.find_element_by_id('lvc_u100').click()
