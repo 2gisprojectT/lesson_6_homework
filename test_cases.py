@@ -9,8 +9,12 @@ from selenium.webdriver.support import expected_conditions as EC
 
 class AutomaticTestCase(TestCase):
 
-    def wait_element(self, element_id):
+    def wait_element_by_id(self, element_id):
         element = WebDriverWait(self.driver, 15).until(EC.element_to_be_clickable((By.ID, element_id)))
+        return element
+
+    def wait_element_by_class_name(self, element_class_name):
+        element = WebDriverWait(self.driver, 15).until(EC.element_to_be_clickable((By.CLASS_NAME, element_class_name)))
         return element
 
     def setUp(self):
@@ -54,7 +58,7 @@ class AutomaticTestCase(TestCase):
         """
         SEARCH_DATA = 'sportbooooox.ru'    # данные для поиска (есть возможность поиска по названию, тэгу и ссылке)
 
-        search_field = self.wait_element('herculeInput')
+        search_field = self.wait_element_by_id('herculeInput')
         search_field.send_keys(SEARCH_DATA)
         search_field.send_keys(Keys.RETURN)
 
@@ -73,7 +77,7 @@ class AutomaticTestCase(TestCase):
         Результат
         Разделов с новостями на один меньше
         """
-        design_button = self.wait_element('design_tab_label')
+        design_button = self.wait_element_by_id('design_tab_label')
         design_tab = self.driver.find_element_by_id('design_tab_sources')
         design_sections = design_tab.find_elements_by_class_name('feedIndexTitleHolder')
         old_number = len(design_sections)
@@ -83,7 +87,7 @@ class AutomaticTestCase(TestCase):
         self.driver.find_element_by_id('unsubscribeAction').click()
 
         self.driver.refresh()
-        design_button = self.wait_element('design_tab_label')
+        design_button = self.wait_element_by_id('design_tab_label')
         design_tab = self.driver.find_element_by_id('design_tab_sources')
         new_design_sections = design_tab.find_elements_by_class_name('feedIndexTitleHolder')
         new_number = len(new_design_sections)
@@ -102,14 +106,14 @@ class AutomaticTestCase(TestCase):
         Результат
         В результате в окне контента в разделе "Спорт" появится новый раздел, то есть количество разделов увеличится на 1
         """
-        sport_tab = self.wait_element('sport_tab_sources')
+        sport_tab = self.wait_element_by_id('sport_tab_sources')
         sport_sections = sport_tab.find_elements_by_class_name('feedIndex')
         old_number = len(sport_sections)
 
         SEARCH_DATA = 'sport'
-        add_button = self.wait_element('secondaryPanelButton')
+        add_button = self.wait_element_by_class_name('secondaryPanelButton')
         add_button.click()
-        search_field = self.wait_element('maxHerculeInput')
+        search_field = self.wait_element_by_id('maxHerculeInput')
         search_field.send_keys(SEARCH_DATA)
         search_field.send_keys(Keys.RETURN)
 
@@ -118,7 +122,7 @@ class AutomaticTestCase(TestCase):
         self.driver.find_element_by_id('subscribe').click()
 
         self.driver.refresh()
-        sport_tab = self.wait_element('sport_tab_sources')
+        sport_tab = self.wait_element_by_id('sport_tab_sources')
         sport_sections = sport_tab.find_elements_by_class_name('feedIndex')
         new_number = len(sport_sections)
 
@@ -137,7 +141,7 @@ class AutomaticTestCase(TestCase):
         Результат
         В результате откроется новое окно с сайтом-первоисточником новости
         """
-        sport_tab = self.wait_element('sport_tab_sources')
+        sport_tab = self.wait_element_by_id('sport_tab_sources')
         sport_sections = sport_tab.find_elements_by_class_name('feedIndex')
 
         sport_sections[0].click()
@@ -172,7 +176,7 @@ class AutomaticTestCase(TestCase):
         Новости располагаются столбцом, при этом каждая новость обрамлена, отображается видео, если оно приложено, есть краткое описание и возможность поделиться в соц. сетях
         Комментарий: в качестве проверки правильности используется поиск кнопки "Visit Website", которая присутствует только в данном представлении
         """
-        all_button = self.wait_element('feedlyTab')
+        all_button = self.wait_element_by_id('feedlyTab')
         all_button.find_element_by_id('latesttab_label').click()
         self.driver.find_element_by_id('pageActionCustomize').click()
         self.driver.find_element_by_id('lvc_u100').click()
