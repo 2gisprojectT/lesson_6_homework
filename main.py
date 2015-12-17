@@ -3,6 +3,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
 
 
 class TestForMailGoogle(TestCase):
@@ -41,21 +42,26 @@ class TestForMailGoogle(TestCase):
 
     def get_subject_of_last_message_in_drafts(self):
         self.driver.get("https://mail.google.com/mail/#drafts")
-        self.wait_for_load("in:draft")
-        return self.get_subject_of_last_message()
+        if self.check_load("in:draft"):
+            return self.get_subject_of_last_message()
+        else:
+            return None
 
     def get_subject_of_last_message_in_sent(self):
         self.driver.get("https://mail.google.com/mail/#sent")
-        self.wait_for_load("in:sent")
-        return self.get_subject_of_last_message()
+        if self.check_load("in:sent"):
+            return self.get_subject_of_last_message()
+        else:
+            return None
 
-    def wait_for_load(self, text):
+    def check_load(self, text):
         try:
             WebDriverWait(self.driver, 10).until(
                 EC.text_to_be_present_in_element_value((By.ID, "gbqfq"), text)
             )
-        finally:
-            return
+            return True
+        except TimeoutException:
+            return False
 
     def test_subject_of_the_message_is_empty(self):
         """ Моделирование ситуации, когда тема сообщения не введена
@@ -70,7 +76,7 @@ class TestForMailGoogle(TestCase):
 
         self.driver.find_element_by_css_selector("textarea.vO").send_keys("lesson5homework@gmail.com")
         self.save_in_drafts()
-        
+
         self.assertEqual("(без темы)", self.get_subject_of_last_message_in_drafts())
 
     def test_subject_of_the_message_is_correct(self):
