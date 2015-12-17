@@ -102,12 +102,7 @@ class TestRegistrationForm(TestCase):
         button_reg = self.driver.find_element_by_class_name('auth__formSubmitBtn')
         button_reg.click()
 
-        class_names = str(self.driver.find_element_by_class_name('auth__popup').get_attribute('class'))
-        if class_names.find('_error') == -1:
-            error = True
-        else:
-            error = False
-        self.assertFalse(error)
+        WebDriverWait(self.driver, 10).until(EC.text_to_be_present_in_element((By.CLASS_NAME, 'errorMsg'), 'Вы должны принять лицензионное соглашение.'))
 
     def testing_cooperation_fields_checkbox_filled(self):
         """
